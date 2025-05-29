@@ -81,7 +81,8 @@ const sendMessage = async () => {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ message: history }),
     });
-    const reply = { role: "assistant", text: res.data.response };
+    const data = await res.json();
+    const reply = { role: "assistant", text: data.response };
     setMessages((prev) => [...prev.slice(0, -1), reply]);
     if (voiceOn) {
       speak(reply.text);
