@@ -6,7 +6,7 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-app = Flask(__name__, static_folder='build', static_url_path='/')
+app = Flask(__name__)
 CORS(app)
 
 GROQ_API_KEY = os.getenv("GROQ_API_KEY")
