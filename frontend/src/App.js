@@ -1,5 +1,4 @@
-import React, { useState } from "react";
-import axios from "axios";
+import React, { useState, useEffect, useRef } from "react";
 import { Howl } from 'howler';
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
@@ -9,6 +8,7 @@ function App() {
   const [messages, setMessages] = useState([]);
   const [input, setInput] = useState("");
   const [voiceOn, setVoiceOn] = useState(true);
+  const chatEndRef = useRef(null);
 
   const speak = async (text) => {
   const toastId = toast.loading("Generating AI Chatbot voice...");
@@ -50,35 +50,46 @@ function App() {
   }
 };
 
+ useEffect(() => {
+    scrollToBottom();
+  }, [messages]);
 
-  const sendMessage = async () => {
-    if (!input.trim()) return;
+const scrollToBottom = () => {
+  chatEndRef.current?.scrollIntoView({ behavior: "smooth" });
+};
 
-    const userMsg = { role: "user", text: input };
-    setMessages((prev) => [...prev, userMsg]);
-    setInput("");
+const sendMessage = async () => {
+  if (!input.trim()) return;
 
-    // Show typing indicator
-    const loadingMsg = { role: "assistant", text: "...", loading: true };
-    setMessages((prev) => [...prev, loadingMsg]);
+  const userMsg = { role: "user", text: input };
+  setMessages((prev) => [...prev, userMsg]);
+  setInput("");
 
-    // Prepare message history for backend
-    const history = messages
-      .filter((m) => !m.loading)
-      .map((m) => ({ role: m.role || (m.sender === "user" ? "user" : "assistant"), content: m.text }))
-      .concat({ role: "user", content: input });
+  // Show typing indicator
+  const loadingMsg = { role: "assistant", text: "...", loading: true };
+  setMessages((prev) => [...prev, loadingMsg]);
 
-    try {
-      const res = await axios.post("http://localhost:5000/chat", { messages: history });
-      const reply = { role: "assistant", text: res.data.response };
-      setMessages((prev) => [...prev.slice(0, -1), reply]);
-      if (voiceOn) {
-        speak(reply.text);
-      }
-    } catch (err) {
-      setMessages((prev) => [...prev.slice(0, -1), { role: "assistant", text: "Error: " + err.message }]);
+  // Prepare message history for backend
+  const history = messages
+    .filter((m) => !m.loading)
+    .map((m) => ({ role: m.role || (m.sender === "user" ? "user" : "assistant"), content: m.text }))
+    .concat({ role: "user", content: input });
+
+  try {
+    const res = await fetch(`${process.env.REACT_APP_BACKEND_URL}/chat`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ message: history }),
+    });
+    const reply = { role: "assistant", text: res.data.response };
+    setMessages((prev) => [...prev.slice(0, -1), reply]);
+    if (voiceOn) {
+      speak(reply.text);
     }
-  };
+  } catch (err) {
+    setMessages((prev) => [...prev.slice(0, -1), { role: "assistant", text: "Error: " + err.message }]);
+  }
+};
 
   return (
     <div className="App">
@@ -96,6 +107,7 @@ function App() {
             {msg.loading ? <span className="dot-flash">...</span> : msg.text}
           </div>
         ))}
+        <div ref={chatEndRef} />
       </div>
 
       <div className="chat-footer">
