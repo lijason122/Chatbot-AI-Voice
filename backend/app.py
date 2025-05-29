@@ -1,6 +1,6 @@
 import os
 import requests
-from flask import Flask, request, jsonify, render_template
+from flask import Flask, request, jsonify
 from flask_cors import CORS
 from dotenv import load_dotenv
 
@@ -8,10 +8,6 @@ load_dotenv()
 
 app = Flask(__name__, static_folder='build', static_url_path='/')
 CORS(app)
-
-@app.route('/')
-def index():
-    return render_template('index.html')
 
 GROQ_API_KEY = os.getenv("GROQ_API_KEY")
 MODEL = "llama3-8b-8192"  # Or "mixtral-8x7b-32768"
