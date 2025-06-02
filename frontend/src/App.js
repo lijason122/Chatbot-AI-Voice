@@ -96,7 +96,7 @@ const sendMessage = async () => {
     <div className="App">
       <ToastContainer position="top-center" autoClose={2000} />
       <div className="navbar">
-        <h1>AI Chatbot</h1>
+        <h1>AI Chatbot Voice Assistant</h1>
         <button className="voice-button" onClick={() => setVoiceOn((v) => !v)}>
           {voiceOn ? "🔈 Voice On" : "🔇 Voice Off"}
         </button>
