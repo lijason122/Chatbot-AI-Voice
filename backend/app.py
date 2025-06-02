@@ -10,7 +10,7 @@ app = Flask(__name__)
 CORS(app)
 
 GROQ_API_KEY = os.getenv("GROQ_API_KEY")
-MODEL = "llama3-8b-8192"  # Or "mixtral-8x7b-32768"
+MODEL = "llama-3.1-8b-instant"
 
 @app.post("/chat")
 def chat():
